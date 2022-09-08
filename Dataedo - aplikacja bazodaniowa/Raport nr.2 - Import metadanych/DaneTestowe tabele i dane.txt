@@ -1,0 +1,242 @@
+CREATE TABLE Dzialy (
+id_dzialu Integer Primary Key,
+nazwa Varchar(20),
+adres Varchar(100) );
+
+CREATE TABLE Pracownicy (
+id Integer Primary Key,
+imie Varchar(20),
+nazwisko Varchar(30),
+id_dzialu Integer References Dzialy (id_dzialu),
+pensja Integer,
+projekt Varchar(5) );
+
+CREATE TABLE Projekty (
+p_id Varchar(5) Primary Key,
+szef_projektu Integer References Pracownicy(id),
+nazwa Varchar(50),
+termin_oddania Date);
+
+CREATE TABLE Klienci (
+k_id Integer Primary Key,
+nazwa Varchar(100),
+telefon Varchar(25),
+prac_kontaktowy Integer References Pracownicy(id) );
+
+
+CREATE TABLE Wyk_dzial (
+nazwa VARCHAR(20),
+d_id INTEGER PRIMARY KEY,
+k_id INTEGER
+);
+
+CREATE TABLE Wyk_prac (
+imie VARCHAR(20),
+nazwisko VARCHAR(20),
+pensja INTEGER,
+d_id INTEGER,
+FOREIGN KEY(d_id) REFERENCES Wyk_dzial(d_id),
+p_id INTEGER PRIMARY KEY
+);
+
+CREATE TABLE Zlecenia (
+id INTEGER PRIMARY KEY,
+data_rozpoczecia DATE DEFAULT SYSDATE,
+nazwa VARCHAR(20),
+zespol INTEGER REFERENCES Dzialy(id_dzialu),
+termin DATE NOT NULL,
+ukonczone VARCHAR(3),
+koszt INTEGER,
+CONSTRAINT c1 CHECK(termin > data_rozpoczecia),
+CONSTRAINT c2 CHECK(koszt> 0),
+CONSTRAINT c3 CHECK(ukonczone IN ('tak', 'nie'));
+
+CREATE TABLE Wlasciciele(
+id Integer, 
+CONSTRAINT w1 Primary Key (id),
+nazwa Varchar(20) NOT NULL,
+telefon Varchar(20),
+uwagi Varchar(50)
+);
+
+CREATE TABLE Pojazdy(
+id Integer Primary Key,
+nrVin Integer Unique,
+marka Varchar(20) NOT NULL,
+kolor Varchar(20) NOT NULL,
+wlasciciel Integer,
+CONSTRAINT p1 Foreign Key (wlasciciel) REFERENCES Wlasciciele(id),
+uwagi Varchar(50)
+);
+
+CREATE TABLE Naprawy(
+id Integer Primary Key,
+pojazd Integer NOT NULL,
+CONSTRAINT n2 Foreign Key (pojazd) REFERENCES Pojazdy(id),
+data_rozp Date Default SYSDATE NOT NULL,
+data_naprawy Date,
+CONSTRAINT n1 CHECK(data_naprawy>data_rozp),
+koszt Integer CHECK (koszt>=0),
+opis_zgloszenia Varchar(50) NOT NULL
+);
+
+CREATE TABLE Czesci(
+id INTEGER,
+nazwa VARCHAR(20),
+cena INTEGER,
+producent VARCHAR(20),
+dostawca VARCHAR(20),
+CONSTRAINT d1 CHECK (cena > 0),
+CONSTRAINT d2 CHECK (nazwa IS NOT NULL),
+CONSTRAINT pk PRIMARY KEY(id)
+);
+
+CREATE TABLE UzyteCzesci(
+id_cz Integer REFERENCES Czesci(id),
+id_naprawy Integer REFERENCES Naprawy(id),
+Primary Key(id_cz, id_naprawy),
+ilosc Integer NOT NULL CHECK (ilosc>=0),
+uwagi Varchar(50)
+);
+
+CREATE TABLE PracownicyDataedo (
+imie VARCHAR(20),
+nazwisko VARCHAR(50),
+data_urodzenia DATE,
+kwota_wynagrodzenia INTEGER,
+poczatek_zatrudnienia DATE,
+koniec_zatrudnienia DATE,
+CONSTRAINT pd_poczatek_zatrudnienia_ck CHECK (poczatek_zatrudnienia <= koniec_zatrudnienia)
+);
+
+
+
+CREATE VIEW Liczba_pracownikow_zatrudnionych_w_roku AS
+SELECT YEAR(poczatek_zatrudnienia) AS "Rok zatrudnienia", COUNT(*) AS "Liczba pracownikow zatrudnionych w tym roku"
+FROM PracownicyDataedo
+GROUP BY YEAR(poczatek_zatrudnienia)
+
+
+
+
+INSERT INTO Dzialy VALUES (1,'Marketing','Warszawa, Sloneczna 3');
+INSERT INTO Dzialy VALUES (2, 'Ksiegowosc','Warszawa, Sloneczna 3');
+INSERT INTO Dzialy VALUES (3,'Administracja IT','Warszawa, Sloneczna 3a');
+INSERT INTO Dzialy VALUES (4,'Programisci','Bydgoszcz, Kwiatowa 16');
+INSERT INTO Dzialy VALUES (5,'Oddzial Turzno','Turzno, Torunska 5');
+
+
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (1,'Erich','Rosales',2,2510,'it1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (2,'Lucian','Potter',5,3600,null);
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (3,'Davis','Gregory',1,2200,'it2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (4,'Lewis','Woodard',5,3800,'m1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (5,'Maxwell','Buckley',4,2300,'p1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (6,'Christen','Ballard',1,1800,'p2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (7,'Thane','Miranda',5,1800,null);
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (8,'Kaitlin','Hopkins',4,3600,'p3');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (9,'Risa','Morin',1,3600,'p2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (10,'James','Potter',1,3600,'it2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (11,'Nell','Cervantes',3,3400,'it1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (12,'Cedric','Bryan',1,3100,'it1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (13,'Christen','Sharp',3,2200,null);
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (14,'Erich','Barnett',2,2400,'p2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (15,'Shelley','Watson',3,3800,'p3');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (16,'Shelley','Hurley',2,2700,'p2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (17,'Jona','Wolfe',5,3500,null);
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (18,'Ian','Cook',2,2700,'it2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (19,'Naida','Hampton',1,2200,'it1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (20,'Jon','Richards',2,2700,null);
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (21,'Florence','Lamb',1,1600,'p2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (22,'Grady','Hewitt',1,3100,'m1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (23,'Chloe','Austin',2,3800,'p2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (24,'Hoyt','Potter',2,3800,'p1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (25,'James','Estes',1,2100,null);
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (26,'James','Weiss',1,2500,'p1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (27,'William','Erickson',2,3400,'p1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (28,'Ian','Pearson',1,2700,'p2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (29,'Brett','Newton',2,3400,'p3');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (30,'Rhoda','Mccoy',3,3200,'it2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (31,'Wayne','Fox',1,1600,'p3');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (32,'Juliet','Cohen',2,2800,'m1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (33,'Arden','Sears',1,2700,null);
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (34,'Ian','Fleming',3,1900,'p1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (35,'Ian','Gray',3,3800,'p1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (36,'Davis','Cooley',1,3100,'it1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (37,'Lana','Noel',5,3700,'m1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (38,'Hall','Pittman',4,2400,null);
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (39,'Willian','Stephens',2,3400,null);
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (40,'Risa','Marks',3,2700,'p1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (41,'Maggie','Jones',1,1800,'p1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (42,'Slade','Chen',1,3500,'p1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (43,'Maggie','Mcclain',5,2500,null);
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (44,'Davis','Goodman',3,3100,'p2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (45,'Keane','Chen',1,1600,'p1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (46,'Cecilia','Miranda',5,2300,'p2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (47,'Lucian','Weiss',5,2000,'m1');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (48,'Sean','Allen',2,3400,'p3');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (49,'Cleo','Pruitt',4,2500,'it2');
+INSERT INTO Pracownicy (id,imie,nazwisko,id_dzialu,pensja,projekt) VALUES (50,'Morgan','Harvey',5,3000,null);
+
+
+
+INSERT INTO Projekty VALUES ('it1',11,'Upgrade sprzetu','2009-01-10');
+INSERT INTO Projekty VALUES ('p1',5,'Program magazynowy','2009-08-01');
+INSERT INTO Projekty VALUES ('p2',13,'Statistica','2010-02-20');
+INSERT INTO Projekty VALUES ('m1',37,'Inwentaryzacja','2010-01-01');
+INSERT INTO Projekty VALUES ('it2',49,'Archiwizacja roczna','2009-12-24');
+INSERT INTO Projekty VALUES ('p3',8,'Sklep motoryzacyjny','2009-01-13');
+
+
+
+INSERT INTO Klienci VALUES( 1,'Acme S.A.','123-456-78-89',17);
+INSERT INTO Klienci VALUES( 2,'Spolem S.A.','333-444-55-66',45);
+INSERT INTO Klienci VALUES( 3,'Jozef Mialkowski','607-607-60-77',37);
+INSERT INTO Klienci VALUES( 4,'Zenon Kruk','(0-89) 545-03-43',null);
+INSERT INTO Klienci VALUES( 5,'Statics Sp.z o.o.','(0-22) 213-432-54',8);
+INSERT INTO Klienci VALUES( 6,'BitBit','600-700-80-90',10);
+INSERT INTO Klienci VALUES( 7,'Ropuszka','303-404-10-00',null);
+INSERT INTO Klienci VALUES( 8,'Auto Szyby','701-170-17-01',8);
+INSERT INTO Klienci VALUES( 9,'Witold Witkacy','(0-56) 546-15-100',null);
+INSERT INTO Klienci VALUES( 10,'Croma',null,28);
+
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('Mauris Blandit',26,30);
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('Proin Eget Company',5,6);
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('Morbi Vehicula',7,25);
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('Cras Eu Tellus',6,15);
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('Risus In Associates',34,16);
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('A Aliquet Vel LLC',23,29);
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('Vel Corporation',13,36);
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('Cursus Integer',31,30);
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('Erat Nequen',33,33);
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('Tincidunt Neque',12,35);
+INSERT INTO Wyk_dzial (nazwa,d_id,k_id) VALUES ('Iaculis Institute',28,33);
+
+
+
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Heather','Mack',1723,26,29);
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Ramona','Spencer',3367,5,14);
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Yuli','Guerrero',3433,7,1);
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Lewis','Head',2350,34,11);
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Jenette','Cantu',1191,23,30);
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Wyatt','Potts',1827,13,19);
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Venus','Wise',1786,31,27);
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Lucas','Witt',1590,33,13);
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Kellie','Valencia',3311,12,7);
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Alika','Boyle',1408,28,35);
+INSERT INTO Wyk_prac (Imie,Nazwisko,Pensja,d_id,p_id) VALUES ('Richard','Peterson',3249,6,5);
+INSERT INTO WYK_prac VALUES('Jan', 'Kowalski', 5000, 14, 11)
+INSERT INTO WYK_prac VALUES('Julia', 'Gerbert', 5000, 14, 14)
+INSERT INTO WYK_prac VALUES('Bartek', 'Sanosz', 5000, 14, 12)
+
+INSERT INTO PracownicyDataedo VALUES('Jan', 'Lubiejewski', TO_DATE('31-10-1996', 'dd-mm-yyyy'), 5000, TO_DATE('15-10-2022', 'dd-mm-yyyy'), NULL);
+INSERT INTO PracownicyDataedo VALUES('Tomasz', 'Brodowski', TO_DATE('15-1-1991', 'dd-mm-yyyy'), 5000, TO_DATE('1-2-2022', 'dd-mm-yyyy'), NULL);
+INSERT INTO PracownicyDataedo VALUES('Julia', 'Kowalska', TO_DATE('11-5-1995', 'dd-mm-yyyy'), 6000, TO_DATE('1-1-2022', 'dd-mm-yyyy'), TO_DATE('16-8-2022', 'dd-mm-yyyy'));
+INSERT INTO PracownicyDataedo VALUES('Marcin', 'Tracz', TO_DATE('11-5-1992', 'dd-mm-yyyy'), 7000, TO_DATE('1-1-2020', 'dd-mm-yyyy'), TO_DATE('15-8-2022', 'dd-mm-yyyy'));
+INSERT INTO PracownicyDataedo VALUES('Kasandra', 'Dziennik', TO_DATE('12-4-1994', 'dd-mm-yyyy'), 6000, TO_DATE('1-1-2021', 'dd-mm-yyyy'), TO_DATE('30-12-2022', 'dd-mm-yyyy'));
+
+INSERT INTO PracownicyDataedo VALUES('Grzegorz', 'Borkowski', TO_DATE('11-5-1993', 'dd-mm-yyyy'), 5000, TO_DATE('1-1-2020', 'dd-mm-yyyy'), NULL);
+INSERT INTO PracownicyDataedo VALUES('Marcin', 'Mus', TO_DATE('11-10-1992', 'dd-mm-yyyy'), 6000, TO_DATE('6-5-2020', 'dd-mm-yyyy'), NULL);
+INSERT INTO PracownicyDataedo VALUES('Ewa', 'Swoboda', TO_DATE('5-9-1991', 'dd-mm-yyyy'), 5000, TO_DATE('12-6-2021', 'dd-mm-yyyy'), NULL);
+INSERT INTO PracownicyDataedo VALUES('Bartosz', 'Leszczynski', TO_DATE('5-9-1991', 'dd-mm-yyyy'), 5000, TO_DATE('12-6-2021', 'dd-mm-yyyy'), TO_DATE('25-5-2022', 'dd-mm-yyyy'));
+INSERT INTO PracownicyDataedo VALUES('Alicja', 'Mus', TO_DATE('15-7-1995', 'dd-mm-yyyy'), 4500, TO_DATE('12-12-2021', 'dd-mm-yyyy'), NULL);
+INSERT INTO PracownicyDataedo VALUES('Michal', 'Mrozek', TO_DATE('30-11-1993', 'dd-mm-yyyy'), 5000, TO_DATE('12-3-2022', 'dd-mm-yyyy'), TO_DATE('10-6-2022', 'dd-mm-yyyy'));
